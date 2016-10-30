@@ -1,0 +1,49 @@
+Hiren Patel hkp35
+Kapil Srinivas Jayaraman kj184
+
+Test Cases:
+[kapil@nwk-25-152 Desktop]$ ./pointersorter "THis1isatest6 to see 9 if the program.works?now"
+if
+isatest
+now
+program
+see
+the
+THis
+to
+works
+
+[kapil@nwk-25-152 Desktop]$ ./pointersorter "11893hey,everyone. 69this.isyour093742974friendly32neighborhood9032 spider 23 man3288322 "
+everyone
+friendly
+hey
+isyour
+man
+neighborhood
+spider
+this
+
+[kapil@nwk-25-152 Desktop]$ ./pointersorter "The Quick REd Fox....32432 Jumped.over353the93tall00fence"
+fence
+Fox
+Jumped
+over
+Quick
+REd
+tall
+The
+
+[kapil@nwk-25-152 Desktop]$ ./pointersorter  "thing stuff otherstuff blarp"
+blarp
+otherstuff
+stuff
+thing
+
+[kapil@nwk-25-152 Desktop]$ ./pointersorter "thing1stuff3otherstuff,blarp"
+blarp
+otherstuff
+stuff
+thing
+
+[kapil@nwk-25-152 Desktop]$ ./pointersorter
+not enough arguments

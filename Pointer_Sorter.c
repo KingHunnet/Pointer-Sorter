@@ -4,6 +4,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
+//Created new struct to hold char pointer and a next pointer for the linked list
 typedef struct word_ word; 
 struct word_{
 	char* theWord; //the actual word
@@ -30,7 +31,6 @@ Prints linked list
 */
 void PrintLL(word* head)
 {
-	//wont work until linked list is fixed
 	word* current = head;
 	while(current->theWord != NULL)
 	{
@@ -40,17 +40,18 @@ void PrintLL(word* head)
 }
 
 //Creates new node with word specified word and pointing to null
+//Prints out if malloc failed
 word* newNode(char* totokenize)
 {
-	printf("newNode totokenize:%s\n", totokenize);
 	word* theNewNode = (word*)malloc(sizeof(word));
-	printf("made it this far\n");
 	if (theNewNode == NULL){
-		printf("malloc failed  |||||||||||||||||||||||||||||||||||||||||||\n");
+		printf("malloc failed. Output may suffer\n");
+        return NULL;
 	}
 	char* wordsMemory = (char*)malloc(strlen(totokenize) * sizeof(char));
 	if (wordsMemory == NULL){
-		printf("malloc failed  |||||||||||||||||||||||||||||||||||||||||||\n");
+		printf("malloc failed. Output may suffer\n");
+        return NULL;
 	}
 
 	strcpy(wordsMemory, totokenize);
@@ -58,77 +59,48 @@ word* newNode(char* totokenize)
 	theNewNode->next = NULL;
 	return theNewNode;
 }
-
+/*
+Save and Sort method takes the word to be added into the linked list and adds it into the correct location in the linked list
+The linked list will remain sorted after the method is complete and no sorting is needed on the linked list
+If the word is a duplicate word (case insensitive), the word will not be added into the linked list
+*/
 void SaveAndSort(char* totokenize, word*** head){
-	printf("{\nbeginning of ssave and sort\n");
-	printf("totokenize:%s\n", totokenize);
-	printf("head:%p\n", (**head));
-	//need to fix comparisons in strcasecmp and that's it. Everything else should work properly
-	//Special case for changing the head
-	// if (head){
-	// 	printf("head's word:%s\n", (*head)->theWord);
-	// }
-
-	// if ((**head)){
-	// 	printf("valid head\n");
-	// 	printf("%s\n", (**head)->theWord);
-	// }
-
-	// if ((**head)->theWord == NULL){
-	// 	printf("--------------------------------------------------------------------------------\n");
-	// }
-
-	printf("head's word:%s\n", (**head)->theWord);
-	if ((**head)->theWord == NULL|| strcasecmp(totokenize,((**head)->theWord)) < 0)
+	if ((**head)->theWord == NULL || strcasecmp(totokenize,((**head)->theWord)) <= 0)
 	{
-		// if(**head){
-		// 	printf("in if of valid pointer\n");
-		// 	int casecmpint = strcasecmp(totokenize,((***head)->theWord));
-		// 	// printf("made it past case comp\n");
-		// 	printf("strcasecmp=%d\n", casecmpint);
-		// }
-		printf("in if\n");
+		//checking if it's the same word
+        	if ((**head)->theWord != NULL && strcasecmp(totokenize,((**head)->theWord)) == 0)
+        	{
+            		return;
+        	}
+		//adding the word before head
 		word* nodetoadd = newNode(totokenize);
-		// printf("here before head change\n");
-		
 		nodetoadd->next = **head;
 		**head = nodetoadd;
-		
-		printf("head:%p\n", **head);
-		printf("head's word: %s, head's next: %p\n", (**head)->theWord, (**head)->next);
 	}
 	else
 	{
 		//Locate the node before point of insertion
 		word* current = **head;
-
-		while(!((current)->next) && strcasecmp(totokenize, ((current)->next->theWord)) > 0)
+		while(!((current)->next->theWord == NULL) && strcasecmp(totokenize, ((current)->next->theWord)) > 0)
 		{
 			current = (current)->next;
-		}
-		printf("Node before: Pointer:%p, Word:%s, NExt: %p\n", current, current->theWord, current->next);
-		//check to make sure not the same word first and then add in node
-		printf("current->next->theWord:%s\n", current->next->theWord);
+			}
+        	//Checking if the words are the same
+        	if (!((current)->next->theWord == NULL) && strcasecmp(totokenize, ((current)->next->theWord)) == 0){
+          	  	return;
+       		 }
+		//adding new node to the linked list
 		if (((current->next->theWord) == NULL) || strcasecmp(totokenize, (current->next->theWord)) < 0)
 		{
-			printf("---------------------------------------------------------------------------------------------------------------------------\n");
 			word* nodetoadd = newNode(totokenize);
 			nodetoadd->next = current->next;
 			current->next = nodetoadd;
-			printf("Node to add pointer:%p, nodetoadd next, %p\n", nodetoadd, nodetoadd->next);
-			printf("current: %p, current next: %p\n", current, current->next);
 		}
-
-		
-
-
-
 	}
 
-	printf("end of save and sort\n}\n");
 }
 /*
-From Tokenizer. Gets char's until it hits non-alpha char. Appends chars 
+Gets char's until it hits non-alpha char. Appends chars 
 to string and adds null at end (makes it easy to strcpy). returns a
 pointer of where it left off in the string
 */
@@ -145,7 +117,6 @@ char* isWord( char* ts, word** head ) {
 		
 		ts+=i;	
 		totokenize[i] = '\0';
-		// printf("head: %p, before save and sort: %s\n", head, head->theWord);
 		SaveAndSort(totokenize, &head);
 		return ts;
 	}
@@ -153,25 +124,10 @@ char* isWord( char* ts, word** head ) {
 	return NULL;
 }
 /*
-From Tokenizer. Makes sure no null return in isWord. This method initally
-also had isDec, isFloat, isOct, isHex
-head refers to the head of the linked list
-*/
-//Do we even need this method?
-// char* TKCreate( char * ts, word* head ) {
-// 	char* wordret = isWord(ts, head);
-// 	if (wordret != NULL){
-// 		return wordret;
-// 	}
-// 	printf("RETURNED NULLLLLLLLLL!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
-// 	return NULL;
-// }
-
-/*
 Gets to the next starting point of a word. keeps going until it finds an
 alpha char or a null. Terminates on null and throws error if need be
 */
-char* StartingPt(char *inputptr){
+char* StartingPt(char *inputptr, bool firsttime){
 	char* finalptr;
 	finalptr = inputptr;
 	bool moved = false;
@@ -184,7 +140,7 @@ char* StartingPt(char *inputptr){
 		return '\0';
 	}
 
-	if(moved == false){
+	if(moved == false && firsttime == false){
 		printf("Error. Tokens are improperly seperated\n");
 	}
 	
@@ -196,46 +152,42 @@ command line but this is way faster and easier. Just replace with
 char input[] = argv[1]
 */
 int main(int argc, char **argv) {
-	char input[] = " 3001.0000e5 spartans4 killed 1000 033333 persians CONQUERED 0x12345DEF";
-	char *inputptr;
-	inputptr = malloc(strlen(input) * sizeof(char));
-	strcpy(inputptr, input);
-	printf("%s\n", inputptr);
+    if (argc <  2)
+    {
+        printf("not enough arguments\n");
+        return 0;
+    }
+    if (argc>2)
+    {
+        printf("Too many arguments. You fail\n");
+        return 0;
+    }
+    char *inputarg = argv[1];
+    char* inputptr = inputarg;
+
+	inputptr = malloc(strlen(inputarg) * sizeof(char));
+	strcpy(inputptr, inputarg);
 
 	word startinghead = {NULL, NULL};
 	word* head = &startinghead;
-	printf("%p\n", head);
-
-	// word *head = (word*)malloc(sizeof(word));
 	head->theWord = NULL;
 	head->next = NULL;
-	// printf("head:%p\nhead's word:%s\nhead's next:%p\n", head, head->theWord, head->next);
+    bool firststart = true;
+	inputptr = StartingPt(inputptr, firststart);
 
-	// if (!head){
-	// 	printf("head is null. you done fucked\n");
-	// 	return 0;
-	// }
-	// word headdata = {'\0', 0, NULL};
-	// memcpy(head, &headdata, sizeof(headdata));
-	// printf("head: : %s, %p\n", head->theWord, head->next);
-	// int dumbcounter = 0;
-
-	inputptr = StartingPt(inputptr);
-
+    firststart = false;
 	while(inputptr != NULL)
 	{
 		inputptr = isWord(inputptr, &head);
-		inputptr = StartingPt(inputptr);
-		printf("head:%p, head's word:%s\n", head, head->theWord);
+		inputptr = StartingPt(inputptr, firststart);
 	}
-	//free input pointer
+	//free input pointers
 	free(inputptr);
-	//Print linked list
-	printf("before PrintLL. head:%p\n", head);
+	
 	//Print linked list
 	PrintLL(head);
 
-	//free linked list
+	//free linked list and all other malloced memory
 	FreeLL(head);
 
 	return 0;
